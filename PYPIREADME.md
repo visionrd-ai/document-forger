@@ -10,7 +10,7 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install documen
 pip install document-forger
 ```
 
-Or clone this git repository and install the dependencies through the requirements text file provided
+Or go to our github page and clone this git repository and install the dependencies through the requirements text file provided
 
 ```bash
 pip install -r requirements.txt
@@ -22,10 +22,10 @@ The package is built around using the copy-paste technique. The code utilizes OC
 
 The purpose behind this package is to artificially expand and create a synthetic dataset that can be used to test Forgery Detection AI and to stress test it with different variations.
 
-![Real vs Forged](docs/Results_1.png)
-![Real vs Forged](docs/Results_2.png)
-![Real vs Forged](docs/Results_3.png)
-![Real vs Forged](docs/Results_4.png)
+![Real vs Forged](https://github.com/visionrd-ai/document-forger/tree/main/docs/Results_1.png)
+![Real vs Forged](https://github.com/visionrd-ai/document-forger/tree/main/docs/Results_2.png)
+![Real vs Forged](https://github.com/visionrd-ai/document-forger/tree/main/docs/Results_3.png)
+![Real vs Forged](https://github.com/visionrd-ai/document-forger/tree/main/docs/Results_4.png)
 
 The above images shows real vs forged generated documents where the red boxes highlight the modifications made to the real document.
 
@@ -42,6 +42,7 @@ process_document(input_image, output_directory)
 ```
 
 Or through the terminal
+
 ```bash
 python -m document_forger --image_path input_img --ouptut_dir output_dir
 ```
@@ -58,7 +59,7 @@ Or you can use the ```--tesseract_cmd``` argument in the terminal.
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first
+Pull requests are welcome. Go to our Github Page and for major changes, please open an issue first
 to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
