@@ -65,7 +65,7 @@ def process(i, cv_img, annotations, probability, confidence_threshold, output_di
             img = character_replacer(duplicate_img[y:y+h, x:x+w], row['text'], row['characters'], confidence_threshold, max_tries)
             if img is not None:
                 duplicate_img[y:y+h, x:x+w] = img
-                replacement_flag = False
+                replacement_flag = True
         if replacement_flag:
             break
     cv2.imwrite(f'{output_dir}/{name}_{i}.png', duplicate_img)

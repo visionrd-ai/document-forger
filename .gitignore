@@ -1,3 +1,4 @@
 build/
 dist/
 document_forger.egg-info/
+document_forger/__pycache__/
