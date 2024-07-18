@@ -9,7 +9,7 @@ from .utils import compute_statistics, get_character_index, DEFAULT_PROBABILITY,
 from .ocr import extract_words, extract_characters, image_comparison
 from .image_processing import process_image
 
-def character_replacer(cv_img, text, characters, confidence_threshold):
+def character_replacer(cv_img, text, characters, confidence_threshold, max_tries):
     index = get_character_index(text, characters)
     if index == -1:
         return None
@@ -18,7 +18,7 @@ def character_replacer(cv_img, text, characters, confidence_threshold):
     temp_string = ''.join(char['char'] for char in characters)
     forged_img = copy.deepcopy(cv_img)
 
-    for _ in range(MAX_TRIES):
+    for _ in range(max_tries):
         choice1 = random.randint(index, len(characters) - 1)
         choice2 = random.randint(index, len(characters) - 1)
 
@@ -53,16 +53,16 @@ def character_replacer(cv_img, text, characters, confidence_threshold):
                     return cv_img
     return None
 
-def process(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name):
+def process(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries):
     duplicate_img = copy.deepcopy(cv_img)
     name = img_name.split('.')[0]
-    for _ in range(MAX_TRIES):
+    for _ in range(max_tries):
         replacement_flag = False
         for index, row in annotations.items():
             if (random.random() < probability) or (len(row['characters']) <= 1):
                 continue
             x, y, w, h = row['bbox']
-            img = character_replacer(duplicate_img[y:y+h, x:x+w], row['text'], row['characters'], confidence_threshold)
+            img = character_replacer(duplicate_img[y:y+h, x:x+w], row['text'], row['characters'], confidence_threshold, max_tries)
             if img is not None:
                 duplicate_img[y:y+h, x:x+w] = img
                 replacement_flag = False
@@ -75,18 +75,19 @@ def process_document_wrapper(args):
     random.seed(unique_seed)
     return process(*args)
 
-def process_document(input_image, output_dir, probability=DEFAULT_PROBABILITY, total_documents=TOTAL_DOCUMENTS, confidence_threshold=CONFIDENCE_THRESHOLD, deskew_image=DESKEW_IMAGE):
-    img_name = os.path.basename(input_image)
-    annotations = {}
-    pil_img, cv_img = process_image(input_image, deskew_image)
-    annotations = extract_words(pil_img, annotations)
-    annotations = extract_characters(cv_img, annotations)
+def process_document(input_image, output_dir, probability=DEFAULT_PROBABILITY, total_documents=TOTAL_DOCUMENTS \
+    , confidence_threshold=CONFIDENCE_THRESHOLD, deskew_image=DESKEW_IMAGE, max_tries=MAX_TRIES):
+        img_name = os.path.basename(input_image)
+        annotations = {}
+        pil_img, cv_img = process_image(input_image, deskew_image)
+        annotations = extract_words(pil_img, annotations)
+        annotations = extract_characters(cv_img, annotations)
 
-    pool = multiprocessing.Pool(processes=(multiprocessing.cpu_count() // 2))
-    args = [(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name) for i in range(total_documents)]
+        pool = multiprocessing.Pool(processes=(multiprocessing.cpu_count() // 2))
+        args = [(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries) for i in range(total_documents)]
 
-    for _ in tqdm(pool.imap_unordered(process_document_wrapper, args), total=len(args), desc='Creating Documents'):
-        pass
+        for _ in tqdm(pool.imap_unordered(process_document_wrapper, args), total=len(args), desc='Creating Documents'):
+            pass
 
-    pool.close()
-    pool.join()
+        pool.close()
+        pool.join()
