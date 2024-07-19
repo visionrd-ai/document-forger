@@ -3,6 +3,7 @@ import cv2
 import json
 import copy
 import random
+import numpy as np
 import multiprocessing
 from tqdm import tqdm
 from time import time
@@ -81,7 +82,13 @@ def process_document_wrapper(args):
 
 def process_document(input_image, output_dir, probability=DEFAULT_PROBABILITY, total_documents=TOTAL_DOCUMENTS \
     , confidence_threshold=CONFIDENCE_THRESHOLD, deskew_image=DESKEW_IMAGE, max_tries=MAX_TRIES):
-        img_name = os.path.basename(input_image)
+        if isinstance(input_image, np.ndarray):
+            img_name = 'image.png'
+        elif isinstance(input_image, str):
+            img_name = os.path.basename(input_image)
+        else:
+            raise ValueError('Invalid Image Path or Image is not a Numpy Array')
+        
         annotations = {}
         pil_img, cv_img = process_image(input_image, deskew_image)
         annotations = extract_words(pil_img, annotations)
