@@ -89,6 +89,9 @@ def process_document(input_image, output_dir, probability=DEFAULT_PROBABILITY, t
         else:
             raise ValueError('Invalid Image Path or Image is not a Numpy Array')
         
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
         annotations = {}
         pil_img, cv_img = process_image(input_image, deskew_image)
         annotations = extract_words(pil_img, annotations)
