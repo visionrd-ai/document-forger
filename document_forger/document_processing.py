@@ -1,5 +1,6 @@
 import os
 import cv2
+import json
 import copy
 import random
 import multiprocessing
@@ -50,10 +51,11 @@ def character_replacer(cv_img, text, characters, confidence_threshold, max_tries
 
                 if image_comparison(forged_img, new_string) >= confidence_threshold:
                     cv_img[b1:t1, l1:r1] = resized_img
-                    return cv_img
-    return None
+                    return cv_img, text, new_string
+    return None, None, None
 
 def process(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries):
+    forgeries_made = []
     duplicate_img = copy.deepcopy(cv_img)
     name = img_name.split('.')[0]
     for _ in range(max_tries):
@@ -62,13 +64,15 @@ def process(i, cv_img, annotations, probability, confidence_threshold, output_di
             if (random.random() < probability) or (len(row['characters']) <= 1):
                 continue
             x, y, w, h = row['bbox']
-            img = character_replacer(duplicate_img[y:y+h, x:x+w], row['text'], row['characters'], confidence_threshold, max_tries)
+            img, text, modified_text = character_replacer(duplicate_img[y:y+h, x:x+w], row['text'], row['characters'], confidence_threshold, max_tries)
             if img is not None:
                 duplicate_img[y:y+h, x:x+w] = img
+                forgeries_made.append((text, modified_text))
                 replacement_flag = True
         if replacement_flag:
             break
     cv2.imwrite(f'{output_dir}/{name}_{i}.png', duplicate_img)
+    return forgeries_made, (f'{name}_{i}.png')
 
 def process_document_wrapper(args):
     unique_seed = time() + os.getpid()
@@ -86,8 +90,13 @@ def process_document(input_image, output_dir, probability=DEFAULT_PROBABILITY, t
         pool = multiprocessing.Pool(processes=(multiprocessing.cpu_count() // 2))
         args = [(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries) for i in range(total_documents)]
 
-        for _ in tqdm(pool.imap_unordered(process_document_wrapper, args), total=len(args), desc='Creating Documents'):
-            pass
+        document_forgeries = {}
+        for result in tqdm(pool.imap_unordered(process_document_wrapper, args), total=len(args), desc='Creating Documents'):
+            forgeries_made, document_name = result
+            document_forgeries[document_name] = forgeries_made
 
+        with open(f'{output_dir}/document_forgeries.json', 'w') as f:
+            json.dump(document_forgeries, f, indent=4)
+            
         pool.close()
         pool.join()

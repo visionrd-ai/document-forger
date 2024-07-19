@@ -1,5 +1,6 @@
 import cv2
 from PIL import Image
+import numpy as np
 
 def get_skew_angle(cv_image) -> float:
     new_image = cv_image.copy()
@@ -37,7 +38,15 @@ def deskew(cv_image, angle_threshold: float = 1.0):
     return cv_image
 
 def process_image(image_path, deskew_image):
-    cv_img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    if isinstance(image_path, np.ndarray):
+        cv_img = image_path
+    elif isinstance(image_path, str):
+        cv_img = cv2.imread(image_path, cv2.IMREAD_COLOR)
+    else:
+        raise ValueError('Invalid Image Path or Image is not a Numpy Array')
+    
+    if cv_img is None:
+        raise ValueError('Failed to Load Image')
     if deskew_image:
         cv_img = deskew(cv_img)
     gray_img = cv2.cvtColor(cv_img, cv2.COLOR_BGR2GRAY)

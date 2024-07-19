@@ -2,6 +2,7 @@ import argparse
 import os
 from .document_processing import process_document
 from .utils import set_tesseract_cmd, DEFAULT_PROBABILITY, TOTAL_DOCUMENTS, CONFIDENCE_THRESHOLD, DESKEW_IMAGE, MAX_TRIES
+import numpy as np
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Forging Documents')
@@ -16,11 +17,11 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    if not os.path.exists(args.image_path):
+    if (not os.path.exists(args.image_path)) or isinstance(args.image_path, np.ndarray):
         print('Input image does not exist.')
         exit(1) 
 
-    if not os.path.exists(args.output_dir):
+    if (not os.path.exists(args.output_dir)):
         print('Invalid Path for Output Directory')
         exit(1)
 
