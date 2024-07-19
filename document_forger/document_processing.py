@@ -53,7 +53,7 @@ def character_replacer(cv_img, text, characters, confidence_threshold, max_tries
                 if image_comparison(forged_img, new_string) >= confidence_threshold:
                     cv_img[b1:t1, l1:r1] = resized_img
                     return cv_img, text, new_string
-    return None, None, None
+    return None
 
 def process(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries):
     forgeries_made = []
@@ -65,8 +65,9 @@ def process(i, cv_img, annotations, probability, confidence_threshold, output_di
             if (random.random() < probability) or (len(row['characters']) <= 1):
                 continue
             x, y, w, h = row['bbox']
-            img, text, modified_text = character_replacer(duplicate_img[y:y+h, x:x+w], row['text'], row['characters'], confidence_threshold, max_tries)
-            if img is not None:
+            result = character_replacer(duplicate_img[y:y+h, x:x+w], row['text'], row['characters'], confidence_threshold, max_tries)
+            if result is not None:
+                img, text, modified_text = result
                 duplicate_img[y:y+h, x:x+w] = img
                 forgeries_made.append((text, modified_text))
                 replacement_flag = True
