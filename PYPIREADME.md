@@ -22,10 +22,10 @@ The package is built around using the copy-paste technique. The code utilizes OC
 
 The purpose behind this package is to artificially expand and create a synthetic dataset that can be used to test Forgery Detection AI and to stress test it with different variations.
 
-![Real vs Forged](https://github.com/visionrd-ai/document-forger/tree/main/docs/Results_1.png)
-![Real vs Forged](https://github.com/visionrd-ai/document-forger/tree/main/docs/Results_2.png)
-![Real vs Forged](https://github.com/visionrd-ai/document-forger/tree/main/docs/Results_3.png)
-![Real vs Forged](https://github.com/visionrd-ai/document-forger/tree/main/docs/Results_4.png)
+![Real vs Forged](https://raw.githubusercontent.com/visionrd-ai/document-forger/main/docs/Results_1.png)
+![Real vs Forged](https://raw.githubusercontent.com/visionrd-ai/document-forger/main/docs/Results_2.png)
+![Real vs Forged](https://raw.githubusercontent.com/visionrd-ai/document-forger/main/docs/Results_3.png)
+![Real vs Forged](https://raw.githubusercontent.com/visionrd-ai/document-forger/main/docs/Results_4.png)
 
 The above images shows real vs forged generated documents where the red boxes highlight the modifications made to the real document.
 
