@@ -50,7 +50,7 @@ def image_comparison_string(img, text):
     similarity_ratio = SequenceMatcher(None, text, img_text).ratio()
     return similarity_ratio * 100
 
-def image_comparison(img, text):
+def image_comparison(img, text, orignial_text):
     img_text = pytesseract.image_to_boxes(img)
     lines = img_text.strip().split('\n')
     data = [dict(zip(['char', 'left', 'bottom', 'right', 'top'], line.split()[:5])) for line in lines]
@@ -58,6 +58,8 @@ def image_comparison(img, text):
     if 'char' in df.columns:
         df = df[df['char'].notna() & df['char'].str.len() > 0].reset_index(drop=True)
         img_text = ''.join(df['char'])
+        if img_text == orignial_text:
+            return 0, img_text
         similarity_ratio = SequenceMatcher(None, text, img_text).ratio()
         return similarity_ratio * 100, img_text
     else:
