@@ -28,6 +28,9 @@ def character_replacer(cv_img, text, characters, confidence_threshold, max_tries
             continue
 
         char1, char2 = characters[choice1], characters[choice2]
+        
+        if not (char1['char'].isupper() and char2['char'].isupper()):
+            pass
 
         if char1['char'] == char2['char'] or char1['char'] == ' ' or char2['char'] == ' ':
             continue
