@@ -14,6 +14,7 @@ if __name__ == '__main__':
     parser.add_argument('--deskew_image', type=bool, default=DESKEW_IMAGE, help='Deskew the image or not.')
     parser.add_argument('--max_tries', type=int, default=MAX_TRIES, help='Maximum number of tries for character replacement at each word and document.')
     parser.add_argument('--tesseract_cmd', type=str, required=False, help='Path to Tesseract executable.')
+    parser.add_argument('--print_output', type=bool, default=False, help='Print the output or not.')
 
     args = parser.parse_args()
 
@@ -28,5 +29,9 @@ if __name__ == '__main__':
     if args.tesseract_cmd:
         set_tesseract_cmd(args.tesseract_cmd)
         
-    process_document(args.image_path, args.output_dir, args.probability, args.total_documents \
+    document_forgeries = process_document(args.image_path, args.output_dir, args.probability, args.total_documents \
         , args.confidence_threshold, args.deskew_image, args.max_tries)
+    
+    if args.print_output:
+        print(document_forgeries)
+    

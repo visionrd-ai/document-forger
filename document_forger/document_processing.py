@@ -120,3 +120,5 @@ def process_document(input_image, output_dir, probability=DEFAULT_PROBABILITY, t
             
         pool.close()
         pool.join()
+        
+        return document_forgeries
