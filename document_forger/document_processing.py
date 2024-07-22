@@ -7,7 +7,7 @@ import numpy as np
 import multiprocessing
 from tqdm import tqdm
 from time import time
-from .utils import compute_statistics, get_character_index, DEFAULT_PROBABILITY, TOTAL_DOCUMENTS, CONFIDENCE_THRESHOLD, DESKEW_IMAGE, MAX_TRIES
+from .utils import compute_statistics, check_format, get_character_index , DEFAULT_PROBABILITY, TOTAL_DOCUMENTS, CONFIDENCE_THRESHOLD, DESKEW_IMAGE, MAX_TRIES, FORMAT
 from .ocr import extract_words, extract_characters, image_comparison
 from .image_processing import process_image
 
@@ -64,7 +64,7 @@ def character_replacer(cv_img, text, characters, confidence_threshold, max_tries
                         return cv_img, text, upd_str
     return None
 
-def process(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries):
+def process(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries, img_format):
     forgeries_made = []
     duplicate_img = copy.deepcopy(cv_img)
     name = img_name.split('.')[0]
@@ -82,8 +82,8 @@ def process(i, cv_img, annotations, probability, confidence_threshold, output_di
                 replacement_flag = True
         if replacement_flag:
             break
-    cv2.imwrite(f'{output_dir}/{name}_{i}.png', duplicate_img)
-    return forgeries_made, (f'{name}_{i}.png')
+    cv2.imwrite(f'{output_dir}/{name}_{i}.{img_format}', duplicate_img)
+    return forgeries_made, (f'{name}_{i}.{img_format}')
 
 def process_document_wrapper(args):
     unique_seed = time() + os.getpid()
@@ -91,14 +91,23 @@ def process_document_wrapper(args):
     return process(*args)
 
 def process_document(input_image, output_dir, probability=DEFAULT_PROBABILITY, total_documents=TOTAL_DOCUMENTS \
-    , confidence_threshold=CONFIDENCE_THRESHOLD, deskew_image=DESKEW_IMAGE, max_tries=MAX_TRIES):
+    , confidence_threshold=CONFIDENCE_THRESHOLD, deskew_image=DESKEW_IMAGE, max_tries=MAX_TRIES, img_format=FORMAT):
+        
+        if not check_format(img_format):
+            raise ValueError('Invalid Output Image Format. Supported Formats are PNG, JPEG, JPG')
+
         if isinstance(input_image, np.ndarray):
-            img_name = 'image.png'
+            img_name = f'image.{img_format}'
         elif isinstance(input_image, str):
+            if not os.path.exists(input_image):
+                raise ValueError('Input Image does not exist.')
             img_name = os.path.basename(input_image)
+            input_image_format = img_name.split('.')[-1]
+            if not check_format(input_image_format):
+                raise ValueError('Invalid Image Format. Supported Formats are PNG, JPEG, JPG')
         else:
             raise ValueError('Invalid Image Path or Image is not a Numpy Array')
-        
+
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
@@ -108,7 +117,7 @@ def process_document(input_image, output_dir, probability=DEFAULT_PROBABILITY, t
         annotations = extract_characters(cv_img, annotations)
 
         pool = multiprocessing.Pool(processes=(multiprocessing.cpu_count() // 2))
-        args = [(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries) for i in range(total_documents)]
+        args = [(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries, img_format) for i in range(total_documents)]
 
         document_forgeries = {}
         for result in tqdm(pool.imap_unordered(process_document_wrapper, args), total=len(args), desc='Creating Documents'):

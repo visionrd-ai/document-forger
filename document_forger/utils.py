@@ -6,9 +6,16 @@ TOTAL_DOCUMENTS = 1
 CONFIDENCE_THRESHOLD = 80
 DESKEW_IMAGE = False
 MAX_TRIES = 10
+FORMAT = 'png'
 
 def set_tesseract_cmd(tesseract_cmd_path):
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd_path
+    
+    
+def check_format(img_format):
+    if img_format not in ['png', 'jpeg', 'jpg']:
+        return False
+    return True
     
 def get_max_top_bottom(characters):
     max_top = float('-inf')
