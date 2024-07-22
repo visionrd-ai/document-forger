@@ -9,6 +9,44 @@ MAX_TRIES = 10
 
 def set_tesseract_cmd(tesseract_cmd_path):
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd_path
+    
+def get_max_top_bottom(characters):
+    max_top = float('-inf')
+    min_bottom = float('inf')
+    for character in characters:
+        max_top = max(max_top, character['top'])
+        min_bottom = min(min_bottom, character['bottom'])
+    #return min(max_top + 5, max_top), max(min_bottom - 5, 0)
+    return max_top, min_bottom
+
+def bounding_box_adjuster(characters):
+    # return characters
+    new_boxes = []
+    max_top, min_bottom = get_max_top_bottom(characters)
+    for i in range(len(characters)):
+        character = characters[i]
+        top = max(character['top'], max_top)
+        bottom = min(character['bottom'], min_bottom)
+        
+        if i == 0:
+            left = character['left']
+        else:
+            left = max(character['left'], characters[i - 1]['right'])
+
+        if i == (len(characters) - 1):
+            right = character['right']
+        else:
+            right = min(character['right'], characters[i + 1]['left'])
+        
+        new_boxes.append({
+            'left': left,
+            'top': top,
+            'right': right,
+            'bottom': bottom,
+            'char': character['char']
+        })
+        
+    return new_boxes
 
 def get_character_index(text, characters):
     char_dict = {char['char']: i for i, char in enumerate(characters)}

@@ -2,3 +2,6 @@ build/
 dist/
 document_forger.egg-info/
 document_forger/__pycache__/
+test_forger.py
+new.py
+Images/

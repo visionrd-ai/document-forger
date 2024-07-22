@@ -2,6 +2,7 @@ import pytesseract
 import pandas as pd
 from tqdm import tqdm
 from difflib import SequenceMatcher
+from .utils import bounding_box_adjuster
 
 def extract_words(img, annotations):
     data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
@@ -30,7 +31,7 @@ def extract_characters(img, annotations):
         df = pd.DataFrame(data)
         if df.empty: continue
         df = df[df['char'].notna() & df['char'].str.len() > 0].reset_index(drop=True)
-        for _, row1 in df.iterrows():
+        for _ , row1 in df.iterrows():
             x1, y1, r1, b1 = row1['left'], row1['top'], row1['right'], row1['bottom']
             text1 = row1['char']
             char_annotations = {
@@ -41,6 +42,7 @@ def extract_characters(img, annotations):
                 'char': text1,
             }
             new_annotations[f'{index}']['characters'].append(char_annotations)
+        new_annotations[f'{index}']['characters'] = bounding_box_adjuster(new_annotations[f'{index}']['characters'])
     return new_annotations
 
 def image_comparison_string(img, text):
@@ -57,6 +59,6 @@ def image_comparison(img, text):
         df = df[df['char'].notna() & df['char'].str.len() > 0].reset_index(drop=True)
         img_text = ''.join(df['char'])
         similarity_ratio = SequenceMatcher(None, text, img_text).ratio()
-        return similarity_ratio * 100
+        return similarity_ratio * 100, img_text
     else:
-        return -1
+        return None

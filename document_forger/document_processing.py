@@ -43,16 +43,21 @@ def character_replacer(cv_img, text, characters, confidence_threshold, max_tries
             new_height = abs(b1 - t1)
             if new_width > 0 and new_height > 0:
                 resized_img = cv_img[b2:t2, l2:r2]
-                resized_img = cv2.resize(resized_img, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+                try:
+                    resized_img = cv2.resize(resized_img, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+                except Exception as e:
+                    return None
+                
                 forged_img[b1:t1, l1:r1] = resized_img
-
                 temp_list = list(temp_string)
                 temp_list[choice1] = char2['char']
                 new_string = ''.join(temp_list)
-
-                if image_comparison(forged_img, new_string) >= confidence_threshold:
-                    cv_img[b1:t1, l1:r1] = resized_img
-                    return cv_img, text, new_string
+                results = image_comparison(forged_img, new_string)
+                if results is not None:
+                    confidence , upd_str = results
+                    if confidence >= confidence_threshold:
+                        cv_img[b1:t1, l1:r1] = resized_img
+                        return cv_img, text, upd_str
     return None
 
 def process(i, cv_img, annotations, probability, confidence_threshold, output_dir, img_name, max_tries):
@@ -61,7 +66,7 @@ def process(i, cv_img, annotations, probability, confidence_threshold, output_di
     name = img_name.split('.')[0]
     for _ in range(max_tries):
         replacement_flag = False
-        for index, row in annotations.items():
+        for _, row in annotations.items():
             if (random.random() < probability) or (len(row['characters']) <= 1):
                 continue
             x, y, w, h = row['bbox']
