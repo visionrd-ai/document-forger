@@ -3,6 +3,7 @@ import pandas as pd
 from tqdm import tqdm
 from difflib import SequenceMatcher
 from .utils import bounding_box_adjuster
+from .image_processing import preprocess_image
 
 def extract_words(img, annotations):
     data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
@@ -46,11 +47,12 @@ def extract_characters(img, annotations):
     return new_annotations
 
 def image_comparison_string(img, text):
-    img_text = pytesseract.image_to_string(img)
+    img_text = pytesseract.image_to_string(preprocess_image(img))
     similarity_ratio = SequenceMatcher(None, text, img_text).ratio()
     return similarity_ratio * 100
 
 def image_comparison(img, text, orignial_text):
+    img = preprocess_image(img)
     img_text = pytesseract.image_to_boxes(img)
     lines = img_text.strip().split('\n')
     data = [dict(zip(['char', 'left', 'bottom', 'right', 'top'], line.split()[:5])) for line in lines]

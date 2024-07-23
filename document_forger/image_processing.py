@@ -1,6 +1,11 @@
 import cv2
 from PIL import Image
+from super_image import EdsrModel, ImageLoader
 import numpy as np
+import torch
+from .suppress_output import SuppressOutput
+
+
 
 def get_skew_angle(cv_image) -> float:
     new_image = cv_image.copy()
@@ -54,7 +59,20 @@ def process_image(image_path, deskew_image):
     pil_img = Image.fromarray(bin_img)
     return pil_img, cv_img
 
+def upscale_image(image):
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    
+    with SuppressOutput():
+        model = EdsrModel.from_pretrained('eugenesiow/edsr-base', scale=2).to(device)
+        
+    inputs = Image.fromarray(image.astype('uint8'), 'RGB')
+    inputs = ImageLoader.load_image(inputs).to(device)
+    preds = model(inputs)
+    process_image = ImageLoader._process_image_to_save(preds)
+    process_image = cv2.cvtColor(process_image, cv2.COLOR_RGB2GRAY)
+    process_image_pil = Image.fromarray(process_image).convert('L')
+    return process_image_pil
+
 def preprocess_image(image):
-    gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    pil_img = Image.fromarray(gray_img)
-    return pil_img
+    gray_img = upscale_image(image)
+    return gray_img

@@ -56,7 +56,7 @@ def character_replacer(cv_img, text, characters, confidence_threshold, max_tries
                 temp_list = list(temp_string)
                 temp_list[choice1] = char2['char']
                 new_string = ''.join(temp_list)
-                results = image_comparison(forged_img, new_string, text)
+                results = image_comparison(copy.deepcopy(forged_img), new_string, text)
                 if results is not None:
                     confidence , upd_str = results
                     if confidence >= confidence_threshold:
