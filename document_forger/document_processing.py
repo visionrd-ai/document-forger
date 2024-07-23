@@ -49,10 +49,9 @@ def character_replacer(cv_img, text, characters, confidence_threshold, max_tries
                 resized_img = cv_img[b2:t2, l2:r2]
                 try:
                     resized_img = cv2.resize(resized_img, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+                    forged_img[b1:t1, l1:r1] = resized_img
                 except Exception as e:
-                    return None
-                
-                forged_img[b1:t1, l1:r1] = resized_img
+                    continue
                 temp_list = list(temp_string)
                 temp_list[choice1] = char2['char']
                 new_string = ''.join(temp_list)
