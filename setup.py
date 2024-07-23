@@ -13,7 +13,10 @@ setup(
         'pillow>=8.1.0', 
         'pandas>=1.2.3',
         'tqdm>=4.59.0',
-        'numpy>=1.20.1' 
+        'numpy>=1.20.1',
+        'torch>=2.3.1',
+        'torchvision>=0.18.1',
+        'super-image>==0.1.7',
     ],
     entry_points={
         'console_scripts': [

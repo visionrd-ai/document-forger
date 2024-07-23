@@ -4,3 +4,6 @@ pillow
 pandas
 tqdm
 numpy
+super-image
+torch
+torchvision
