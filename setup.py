@@ -5,7 +5,7 @@ with open('PYPIREADME.md', 'r') as f:
 
 setup(
     name='document_forger',
-    version='1.0.2.1',
+    version='1.1.1',
     packages=find_packages(),
     install_requires=[
         'opencv-python>=4.5.1', 
@@ -16,7 +16,7 @@ setup(
         'numpy>=1.20.1',
         'torch>=2.3.1',
         'torchvision>=0.18.1',
-        'super-image>==0.1.7',
+        'super-image>=0.1.7',
     ],
     entry_points={
         'console_scripts': [
