@@ -7,8 +7,22 @@ import numpy as np
 import multiprocessing
 from tqdm import tqdm
 from time import time
-from .utils import compute_statistics, check_format, get_character_index , DEFAULT_PROBABILITY, TOTAL_DOCUMENTS, CONFIDENCE_THRESHOLD, DESKEW_IMAGE, MAX_TRIES, FORMAT
-from .ocr import extract_words, extract_characters, image_comparison
+from .utils import (
+    compute_statistics, 
+    check_format, 
+    get_character_index , 
+    DEFAULT_PROBABILITY, 
+    TOTAL_DOCUMENTS, 
+    CONFIDENCE_THRESHOLD, 
+    DESKEW_IMAGE, 
+    MAX_TRIES, 
+    FORMAT
+)
+from .ocr import (
+    extract_words, 
+    extract_characters, 
+    image_comparison
+)
 from .image_processing import process_image
 
 def character_replacer(cv_img, text, characters, confidence_threshold, max_tries):
